@@ -1,0 +1,286 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* ─────────────────────────────────────────────
+   Dark-variant utility (shadcn / next-themes)
+───────────────────────────────────────────── */
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────
+   Tailwind design-token bridge
+───────────────────────────────────────────── */
+@theme inline {
+  /* Typography */
+  --font-sans:    var(--font-inter);
+  --font-heading: var(--font-playfair);
+  --font-mono:    var(--font-geist-mono);
+
+  /* Colour tokens → shadcn CSS vars */
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-popover:            var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:          var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-destructive:        var(--destructive);
+  --color-border:             var(--border);
+  --color-input:              var(--input);
+  --color-ring:               var(--ring);
+  --color-chart-1:            var(--chart-1);
+  --color-chart-2:            var(--chart-2);
+  --color-chart-3:            var(--chart-3);
+  --color-chart-4:            var(--chart-4);
+  --color-chart-5:            var(--chart-5);
+  --color-sidebar:            var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary:    var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:     var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:     var(--sidebar-border);
+  --color-sidebar-ring:       var(--sidebar-ring);
+
+  /* Radius scale */
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-md:  calc(var(--radius) - 2px);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+/* ─────────────────────────────────────────────
+   DARK theme — "Magic Narrator"
+   Deep ink · warm amber accents · no neon
+───────────────────────────────────────────── */
+:root {
+  --radius: 0.5rem;
+
+  /* canvas */
+  --background:          oklch(0.11 0.008 265);
+  --foreground:          oklch(0.92 0.012 75);
+
+  /* surface / elevation */
+  --card:                oklch(0.16 0.008 265);
+  --card-foreground:     oklch(0.92 0.012 75);
+  --popover:             oklch(0.16 0.008 265);
+  --popover-foreground:  oklch(0.92 0.012 75);
+
+  /* brand — warm amber, decidedly un-neon */
+  --primary:             oklch(0.78 0.07 55);
+  --primary-foreground:  oklch(0.11 0 0);
+
+  /* secondary surface */
+  --secondary:           oklch(0.22 0.008 265);
+  --secondary-foreground: oklch(0.92 0.012 75);
+
+  /* muted */
+  --muted:               oklch(0.19 0.008 265);
+  --muted-foreground:    oklch(0.58 0.015 75);
+
+  /* accent — subtle warmth */
+  --accent:              oklch(0.22 0.015 50);
+  --accent-foreground:   oklch(0.92 0.012 75);
+
+  /* danger */
+  --destructive:         oklch(0.65 0.22 22);
+
+  /* chrome */
+  --border:              oklch(0.28 0.008 265 / 80%);
+  --input:               oklch(0.20 0.008 265);
+  --ring:                oklch(0.68 0.07 55);
+
+  /* charts */
+  --chart-1: oklch(0.78 0.07  55);
+  --chart-2: oklch(0.65 0.10 162);
+  --chart-3: oklch(0.70 0.09 200);
+  --chart-4: oklch(0.72 0.12 300);
+  --chart-5: oklch(0.68 0.14  20);
+
+  /* sidebar */
+  --sidebar:                    oklch(0.14 0.008 265);
+  --sidebar-foreground:         oklch(0.92 0.012 75);
+  --sidebar-primary:            oklch(0.78 0.07 55);
+  --sidebar-primary-foreground: oklch(0.11 0 0);
+  --sidebar-accent:             oklch(0.22 0.015 50);
+  --sidebar-accent-foreground:  oklch(0.92 0.012 75);
+  --sidebar-border:             oklch(0.28 0.008 265 / 60%);
+  --sidebar-ring:               oklch(0.68 0.07 55);
+}
+
+/* ─────────────────────────────────────────────
+   LIGHT theme override
+   Warm parchment · rich amber primary
+───────────────────────────────────────────── */
+.light {
+  --background:          oklch(0.98 0.008 80);
+  --foreground:          oklch(0.13 0.01 265);
+
+  --card:                oklch(0.96 0.008 80);
+  --card-foreground:     oklch(0.13 0.01 265);
+  --popover:             oklch(0.96 0.008 80);
+  --popover-foreground:  oklch(0.13 0.01 265);
+
+  --primary:             oklch(0.40 0.08 45);
+  --primary-foreground:  oklch(0.98 0 0);
+
+  --secondary:           oklch(0.93 0.008 80);
+  --secondary-foreground: oklch(0.20 0.01 265);
+
+  --muted:               oklch(0.93 0.008 80);
+  --muted-foreground:    oklch(0.50 0.015 265);
+
+  --accent:              oklch(0.92 0.018 55);
+  --accent-foreground:   oklch(0.35 0.06 45);
+
+  --destructive:         oklch(0.56 0.24 27);
+
+  --border:              oklch(0.88 0.01 80);
+  --input:               oklch(0.88 0.01 80);
+  --ring:                oklch(0.55 0.08 45);
+
+  --chart-1: oklch(0.55 0.10  45);
+  --chart-2: oklch(0.50 0.12 162);
+  --chart-3: oklch(0.45 0.09 200);
+  --chart-4: oklch(0.52 0.14 300);
+  --chart-5: oklch(0.50 0.16  20);
+
+  --sidebar:                    oklch(0.96 0.008 80);
+  --sidebar-foreground:         oklch(0.13 0.01 265);
+  --sidebar-primary:            oklch(0.40 0.08 45);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent:             oklch(0.92 0.018 55);
+  --sidebar-accent-foreground:  oklch(0.35 0.06 45);
+  --sidebar-border:             oklch(0.88 0.01 80);
+  --sidebar-ring:               oklch(0.55 0.08 45);
+}
+
+/* ─────────────────────────────────────────────
+   Base layer
+───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   Custom utilities
+───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   Coursework inspector shimmer
+   Animates a soft gradient across the panel header.
+   Disabled automatically when prefers-reduced-motion: reduce.
+───────────────────────────────────────────── */
+@keyframes ocean-shimmer {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+.inspector-shimmer {
+  background: linear-gradient(
+    120deg,
+    oklch(0.78 0.07 55  / 0.05),
+    oklch(0.65 0.10 162 / 0.04),
+    oklch(0.70 0.09 200 / 0.04),
+    oklch(0.78 0.07 55  / 0.05)
+  );
+  background-size: 300% 300%;
+  animation: ocean-shimmer 9s ease infinite;
+}
+
+/* Alias used by learning-shelf inspector header */
+.shimmer-ocean {
+  background: linear-gradient(
+    120deg,
+    oklch(0.70 0.09 200 / 0.08),
+    oklch(0.65 0.10 162 / 0.06),
+    oklch(0.78 0.07 55  / 0.06),
+    oklch(0.70 0.09 200 / 0.08)
+  );
+  background-size: 300% 300%;
+  animation: ocean-shimmer 10s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inspector-shimmer,
+  .shimmer-ocean {
+    animation: none;
+    background: oklch(0.78 0.07 55 / 0.04);
+  }
+}
+
+@layer utilities {
+  /**
+   * Native CSS text-balance — wraps headings and short copy evenly.
+   * Use on <h1>–<h4>, hero sub-headings, and card titles.
+   *
+   * @example  <h1 className="text-balance">…</h1>
+   */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /**
+   * text-pretty — prefer for body paragraphs (avoids orphans).
+   */
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /**
+   * Faint SVG fractal-noise grain — CSS only, no external images.
+   * Place as a pointer-events-none absolute overlay inside a relative parent.
+   */
+  .noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    /* Smooth scrolling, respect user preferences */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), ui-serif, Georgia, serif;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Stage vignette: subtle top fog band */
+  .stage-vignette::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.18), transparent 55%);
+    opacity: 1;
+  }
+  .dark .stage-vignette::before {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 60%);
+  }
+}
