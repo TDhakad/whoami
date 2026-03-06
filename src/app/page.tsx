@@ -14,8 +14,7 @@ import { SceneProvider } from "@/components/scene-context";
 import { NarratorScene } from "@/components/narrator-scene";
 import { EducationTimeline } from "@/components/education-timeline";
 import type { EducationTimelineItem } from "@/components/education-timeline";
-import { SpellCarousel } from "@/components/spell-carousel";
-import type { SpellCarouselItem } from "@/components/spell-carousel";
+import { CourseworkGrid } from "@/components/coursework-grid";
 import { WorkExperience } from "@/components/work-experience";
 import type { WorkRole } from "@/components/work-experience";
 import { LearningSection } from "@/components/learning-section";
@@ -25,101 +24,6 @@ import { ProjectsCarousel } from "@/components/projects-carousel";
 import type { ProjectItem } from "@/components/projects-carousel";
 import { hero, narratorLines, educationTimeline, courseworkGrid, workExperience } from "@/lib/portfolio-data";
 import { FLAGS } from "@/lib/flags";
-
-/* ── Coursework carousel items ────────────────────────────── */
-
-const courseworkItems: SpellCarouselItem[] = [
-  {
-    id: "cw-dsa",
-    title: "Data Structures & Algorithms",
-    icon: "code",
-    summary:
-      "Rigorous study of time/space complexity, core data structures, and algorithm design patterns that underpin every production system.",
-    tags: ["Arrays", "Trees", "Graphs", "Dynamic Programming", "Big-O"],
-    details: [
-      "Implemented balanced BSTs, heaps, and tries from scratch to internalise the trade-offs — not just use them.",
-      "Solved 150+ LeetCode problems with an emphasis on pattern recognition over memorisation.",
-      "Applied sliding-window and two-pointer patterns to cut O(n²) solutions to O(n) in real production code.",
-      "Studied amortised analysis to reason about ArrayList resizing and hash table rehashing costs.",
-      "Completed ThePrimeagen's Algorithm Course — big-O shifted from abstract math to physical intuition.",
-    ],
-  },
-  {
-    id: "cw-ml",
-    title: "Machine Learning",
-    icon: "brain",
-    summary:
-      "Hands-on study of supervised, unsupervised, and deep learning — from gradient descent mechanics to deploying inference pipelines.",
-    tags: ["Python", "PyTorch", "scikit-learn", "Neural Nets", "Feature Engineering"],
-    details: [
-      "Completed Andrew Ng's Deep Learning Specialisation — backprop clicked as pure linear algebra, not black magic.",
-      "Built a character-level language model from scratch to understand attention before using transformer libraries.",
-      "Engineered features for a tabular classification task that lifted F1 by 0.12 over the baseline.",
-      "Studied bias-variance trade-off to diagnose overfitting without relying on guesswork.",
-      "Deployed a FastAPI inference endpoint serving a fine-tuned BERT classifier with sub-50 ms p95 latency.",
-    ],
-  },
-  {
-    id: "cw-systems",
-    title: "Operating Systems",
-    icon: "layers",
-    summary:
-      "Deep dive into processes, memory management, concurrency primitives, and the UNIX execution model that every developer builds on top of.",
-    tags: ["C", "UNIX", "Processes", "Memory", "Concurrency"],
-    details: [
-      "Read through xv6 source to understand scheduler round-robin, fork/exec, and kernel/user mode boundaries.",
-      "Implemented a producer-consumer queue using POSIX mutexes and condition variables — no busy-waiting.",
-      "Traced a memory leak in a Node.js service by thinking at the C malloc/free level thanks to CS50's foundations.",
-      "Studied virtual memory paging and TLB mechanics to reason about cache miss costs in performance-sensitive paths.",
-      "Used strace to diagnose excessive syscall overhead in a file-processing pipeline, reducing runtime by 35%.",
-    ],
-  },
-  {
-    id: "cw-webdev",
-    title: "Full-Stack Web Development",
-    icon: "wand",
-    summary:
-      "End-to-end web engineering — from HTTP fundamentals and REST/tRPC APIs to React rendering models and deployment pipelines.",
-    tags: ["Next.js", "TypeScript", "tRPC", "React", "Tailwind"],
-    details: [
-      "Adopted Next.js App Router from day one — RSC reduced hydration payload by eliminating client-side data fetching in leaf nodes.",
-      "Implemented end-to-end type safety with tRPC, eliminating an entire class of API contract mismatches.",
-      "Built this portfolio's SceneConveyor system: scroll-driven parallax, per-scene blur/scale, and a narrator cutscene layer.",
-      "Studied HPBN (High Performance Browser Networking) — now reasons about TTFB, TCP slow-start, and TLS handshake costs.",
-      "Profiled and fixed a React reconciliation O(n²) list-diff by introducing a keyed hash-map lookup.",
-    ],
-  },
-  {
-    id: "cw-databases",
-    title: "Databases & SQL",
-    icon: "chart",
-    summary:
-      "Relational theory, query optimisation, indexing strategies, and the trade-offs between SQL and NoSQL stores in production systems.",
-    tags: ["PostgreSQL", "SQL", "Indexing", "Transactions", "pgvector"],
-    details: [
-      "Studied ACID guarantees and isolation levels — now picks the right level (read committed vs serialisable) based on actual workload needs.",
-      "Used EXPLAIN ANALYZE to diagnose a sequential scan, created a composite index, and cut query time from 2.1 s to 11 ms.",
-      "Designed a pgvector RAG pipeline that embedded 3,000 pages and retrieves semantically relevant chunks with cosine similarity.",
-      "Modelled a complex many-to-many schema with junction tables, avoiding the 'just add a column' anti-pattern.",
-      "Implemented optimistic locking to safely handle concurrent ticket reservations without serialisable isolation overhead.",
-    ],
-  },
-  {
-    id: "cw-networks",
-    title: "Computer Networks",
-    icon: "spark",
-    summary:
-      "From TCP/IP fundamentals to HTTP/2 multiplexing, CDN edge logic, and WebSocket fanout — the physical reality behind every web request.",
-    tags: ["TCP/IP", "HTTP/2", "WebSockets", "DNS", "TLS"],
-    details: [
-      "Read Ilya Grigorik's HPBN cover-to-cover — TCP slow-start and TLS handshakes stopped being black boxes.",
-      "Reduced TTFB on a Next.js app by pre-connecting to third-party origins and eliminating render-blocking requests.",
-      "Built a WebSocket fanout layer delivering sub-100 ms event updates to 50 concurrent dashboard tabs.",
-      "Switched a service from HTTP/1.1 to HTTP/2 after understanding head-of-line blocking — parallel asset loading improved by 40%.",
-      "Configured a CDN with cache-control headers and stale-while-revalidate to eliminate origin hits for static assets.",
-    ],
-  },
-];
 
 /* ── Learning data (unified model) ───────────────────────────────── */
 
@@ -562,6 +466,20 @@ export default function Home() {
     []
   );
 
+  // Scene indices: 0 hero · 1 education · 2 coursework · 3 learning · 4 work · 5 projects · 6 footer
+  const SCENE_SCROLL_MAP: Record<string, number> = {
+    projects: 5,
+    work: 4,
+    learning: 3,
+    education: 1,
+  };
+
+  const handleProjectLinkClick = React.useCallback((target: string) => {
+    const idx = SCENE_SCROLL_MAP[target] ?? -1;
+    if (idx < 0) return;
+    window.scrollTo({ top: idx * window.innerHeight, behavior: "smooth" });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSceneProgress = React.useCallback(
     (activeIndex: number, progress: number) => {
       if (!FLAGS.NARRATION_ENABLED) return;
@@ -711,7 +629,10 @@ export default function Home() {
               </FogWipeReveal>
             </div>
 
-            <SpellCarousel items={courseworkItems} />
+            <CourseworkGrid
+              items={courseworkGrid.items}
+              onProjectLinkClick={handleProjectLinkClick}
+            />
           </div>
         </Container>
       </section>
