@@ -284,3 +284,28 @@
     background: linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 60%);
   }
 }
+
+/* ─────────────────────────────────────────────
+   Section scroll-reveal
+   IntersectionObserver adds .is-visible.
+   Respects prefers-reduced-motion.
+───────────────────────────────────────────── */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity  0.65s ease-out,
+    transform 0.65s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-reveal {
+    transform: none;
+    transition: opacity 0.4s ease-out;
+  }
+}
+
+.section-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}

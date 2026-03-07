@@ -99,21 +99,6 @@ export const educationTimeline = {
     "Two degrees that built the foundation: computer science fundamentals in India, then graduate specialisation in data science at ASU.",
   items: [
     {
-      id: "bachelors",
-      label: "Bachelors",
-      title: "Bachelor of Technology in Computer Science",
-      org: "Rajiv Gandhi Proudyogiki Vishwavidyalaya",
-      meta: "Aug 2018 – May 2022  •  GPA 3.70 / 4.00  •  Bhopal, India",
-      description:
-        "Four years of rigorous computer science fundamentals — data structures, algorithms, systems programming, and database design. Built a strong foundation in Python, Java, and SQL that would underpin every production system I would later build.",
-      bullets: [
-        "GPA 3.70 / 4.00 — consistent academic performance across all four years",
-        "Focused on distributed systems, database design, and software engineering principles",
-        "Developed Python and Java projects spanning web services, data processing, and automation",
-        "Final year projects included real-time data pipeline prototypes and REST API services",
-      ],
-    },
-    {
       id: "masters",
       label: "Masters",
       title: "Master of Science in Data Science",
@@ -127,6 +112,21 @@ export const educationTimeline = {
         "Applied ML capstone: statistical modelling of wine quality using hypothesis testing and feature selection",
         "Research topics include time series forecasting (ARIMA/SARIMA), RAG-based AI tooling, and ETL orchestration",
         "Active in the ASU Statistics Department as a Computer Support specialist, bridging IT and academic systems",
+      ],
+    },
+    {
+      id: "bachelors",
+      label: "Bachelors",
+      title: "Bachelor of Technology in Computer Science",
+      org: "Rajiv Gandhi Proudyogiki Vishwavidyalaya",
+      meta: "Aug 2018 – May 2022  •  GPA 3.70 / 4.00  •  Bhopal, India",
+      description:
+        "Four years of rigorous computer science fundamentals — data structures, algorithms, systems programming, and database design. Built a strong foundation in Python, Java, and SQL that would underpin every production system I would later build.",
+      bullets: [
+        "GPA 3.70 / 4.00 — consistent academic performance across all four years",
+        "Focused on distributed systems, database design, and software engineering principles",
+        "Developed Python and Java projects spanning web services, data processing, and automation",
+        "Final year projects included real-time data pipeline prototypes and REST API services",
       ],
     },
   ] satisfies EducationTimelineItem[],

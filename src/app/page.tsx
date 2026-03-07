@@ -9,9 +9,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { FogRevealText } from "@/components/fog-reveal-text";
 import { FogWipeReveal } from "@/components/fog-wipe-reveal";
 import { Stage } from "@/components/stage";
-import { SceneConveyor } from "@/components/scene-conveyor";
-import { SceneProvider } from "@/components/scene-context";
-import { NarratorScene } from "@/components/narrator-scene";
 import { EducationTimeline } from "@/components/education-timeline";
 import type { EducationTimelineItem } from "@/components/education-timeline";
 import { CourseworkGrid } from "@/components/coursework-grid";
@@ -21,8 +18,7 @@ import { LearningSection } from "@/components/learning-section";
 import type { LearningItem } from "@/components/learning-section";
 import { Footer } from "@/components/footer";
 import { ProjectsCarousel } from "@/components/projects-carousel";
-import { hero, narratorLines, educationTimeline, courseworkGrid, workExperience, projectsMeta, projectsData } from "@/lib/portfolio-data";
-import { FLAGS } from "@/lib/flags";
+import { hero, educationTimeline, courseworkGrid, workExperience, projectsMeta, projectsData } from "@/lib/portfolio-data";
 
 /* ── Learning data (unified model) ───────────────────────────────── */
 
@@ -361,138 +357,121 @@ const stagger: Variants = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
+/* ── Scroll reveal via IntersectionObserver ────────────────────── */
+
+function useSectionReveal() {
+  React.useEffect(() => {
+    const sections = document.querySelectorAll<HTMLElement>(".section-reveal");
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: "0px 0px -48px 0px" },
+    );
+
+    sections.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+}
+
 /* ── Page ──────────────────────────────────────────────────────── */
 
 export default function Home() {
   const reduced = useReducedMotion();
   const item = buildVariants(reduced);
-  const [narratorVisible, setNarratorVisible] = React.useState(false);
-  const [narratorText, setNarratorText] = React.useState("");
-  const narratorTargetRef = React.useRef<number | null>(null);
 
-  // Feature flag: set FLAGS.NARRATION_ENABLED = true to re-enable narration interludes.
-  const handleSceneChange = React.useCallback(
-    (nextIndex: number) => {
-      if (!FLAGS.NARRATION_ENABLED) return;
-      const nextText = narratorLines[nextIndex] ?? "";
-      if (!nextText) return;
-
-      setNarratorText(nextText);
-      narratorTargetRef.current = nextIndex;
-      setNarratorVisible(true);
-    },
-    []
-  );
-
-  // Scene indices: 0 hero · 1 education · 2 coursework · 3 learning · 4 work · 5 projects · 6 footer
-  const SCENE_SCROLL_MAP: Record<string, number> = {
-    projects: 5,
-    work: 4,
-    learning: 3,
-    education: 1,
-  };
+  useSectionReveal();
 
   const handleProjectLinkClick = React.useCallback((target: string) => {
-    const idx = SCENE_SCROLL_MAP[target] ?? -1;
-    if (idx < 0) return;
-    window.scrollTo({ top: idx * window.innerHeight, behavior: "smooth" });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const el = document.getElementById(target);
+    el?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
-  const handleSceneProgress = React.useCallback(
-    (activeIndex: number, progress: number) => {
-      if (!FLAGS.NARRATION_ENABLED) return;
-      if (narratorTargetRef.current === null) return;
-      if (narratorTargetRef.current !== activeIndex) return;
+  return (
+    <main className="bg-background">
+      {/* Theme toggle — top-right corner */}
+      <div className="fixed top-5 right-5 z-30">
+        <ThemeToggle />
+      </div>
 
-      const settled = Math.abs(progress - activeIndex) <= 0.02;
-      setNarratorVisible(!settled);
+      {/* ── Hero ──────────────────────────────────────────────────── */}
+      <section id="hero" className="relative flex min-h-[100svh] w-full items-center justify-center">
+        <Stage className="flex h-full min-h-[100svh] w-full items-center justify-center">
+          <Stage.Background className="pointer-events-none">
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 55% at 50% -5%, oklch(0.22 0.015 50 / 0.7), transparent)",
+              }}
+            />
+            <div aria-hidden className="noise-overlay absolute inset-0" />
+          </Stage.Background>
 
-      if (settled) {
-        narratorTargetRef.current = null;
-      }
-    },
-    []
-  );
-
-  const scenes = [
-    (
-      <Stage key="scene-hero" className="flex h-full w-full items-center justify-center">
-        <Stage.Background className="pointer-events-none">
-          {/* Radial warm-amber spotlight from the top */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 80% 55% at 50% -5%, oklch(0.22 0.015 50 / 0.7), transparent)",
-            }}
-          />
-
-          {/* CSS-only fractal noise grain */}
-          <div aria-hidden className="noise-overlay absolute inset-0" />
-        </Stage.Background>
-
-        <Stage.Foreground className="relative z-10 w-full">
-          <Container className="relative z-10">
-            <motion.header
-              className="flex flex-col items-center gap-5 py-28 text-center"
-              variants={stagger}
-              initial="hidden"
-              animate="visible"
-            >
-              {/* Eyebrow */}
-              <motion.p
-                variants={item}
-                className="font-mono text-xs tracking-[0.2em] uppercase text-primary/70"
+          <Stage.Foreground className="relative z-10 w-full">
+            <Container className="relative z-10">
+              <motion.header
+                className="flex flex-col items-center gap-5 py-28 text-center"
+                variants={stagger}
+                initial="hidden"
+                animate="visible"
               >
-                {hero.eyebrow}
-              </motion.p>
-
-              {/* Main heading */}
-              <FogRevealText delay={0.15} className="max-w-2xl">
-                <h1
-                  className="text-balance text-5xl font-bold leading-tight text-foreground sm:text-6xl md:text-7xl"
-                  style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
+                <motion.p
+                  variants={item}
+                  className="font-mono text-xs tracking-[0.2em] uppercase text-primary/70"
                 >
-                  {hero.name}
-                </h1>
-              </FogRevealText>
+                  {hero.eyebrow}
+                </motion.p>
 
-              {/* Sub-heading */}
-              <motion.p
-                variants={item}
-                className="max-w-md text-base text-muted-foreground sm:text-lg"
-              >
-                {hero.tagline}
-              </motion.p>
-
-              {/* CTA buttons */}
-              <motion.div
-                variants={item}
-                className="mt-2 flex flex-wrap justify-center gap-3"
-              >
-                {hero.ctas.map((cta) => (
-                  <Button
-                    key={cta.label}
-                    variant={cta.variant}
-                    size="lg"
-                    className="min-w-[120px] cursor-pointer rounded-full font-medium"
+                <FogRevealText delay={0.15} className="max-w-2xl">
+                  <h1
+                    className="text-balance text-5xl font-bold leading-tight text-foreground sm:text-6xl md:text-7xl"
+                    style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
                   >
-                    {cta.label}
-                  </Button>
-                ))}
-              </motion.div>
-            </motion.header>
-          </Container>
-        </Stage.Foreground>
-      </Stage>
-    ),
+                    {hero.name}
+                  </h1>
+                </FogRevealText>
 
-    (
-      <section key="scene-education" className="w-full">
+                <motion.p
+                  variants={item}
+                  className="max-w-md text-base text-muted-foreground sm:text-lg"
+                >
+                  {hero.tagline}
+                </motion.p>
+
+                <motion.div
+                  variants={item}
+                  className="mt-2 flex flex-wrap justify-center gap-3"
+                >
+                  {hero.ctas.map((cta) => (
+                    <Button
+                      key={cta.label}
+                      variant={cta.variant}
+                      size="lg"
+                      className="min-w-[120px] cursor-pointer rounded-full font-medium"
+                    >
+                      {cta.label}
+                    </Button>
+                  ))}
+                </motion.div>
+              </motion.header>
+            </Container>
+          </Stage.Foreground>
+        </Stage>
+      </section>
+
+      {/* ── Education ─────────────────────────────────────────────── */}
+      <section id="education" className="section-reveal flex min-h-[100svh] w-full items-center justify-center py-20">
         <Container>
           <div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
-            {/* Header */}
             <div className="text-center">
               <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary/70">
                 {educationTimeline.eyebrow}
@@ -500,7 +479,6 @@ export default function Home() {
               <FogWipeReveal>
                 <div className="mt-3">
                   <h2
-                    data-scene-title
                     className="text-balance text-4xl font-semibold"
                     style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
                   >
@@ -512,8 +490,6 @@ export default function Home() {
                 </div>
               </FogWipeReveal>
             </div>
-
-            {/* Vertical rail timeline */}
             <EducationTimeline
               items={educationTimeline.items as EducationTimelineItem[]}
               onCta={(cta) => console.log("Education CTA:", cta)}
@@ -521,10 +497,9 @@ export default function Home() {
           </div>
         </Container>
       </section>
-    ),
 
-    (
-      <section key="scene-coursework" className="w-full">
+      {/* ── Coursework ────────────────────────────────────────────── */}
+      <section id="coursework" className="section-reveal flex min-h-[100svh] w-full items-center justify-center py-20">
         <Container>
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
             <div className="text-center">
@@ -534,7 +509,6 @@ export default function Home() {
               <FogWipeReveal>
                 <div className="mt-3">
                   <h2
-                    data-scene-title
                     className="text-balance text-4xl font-semibold"
                     style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
                   >
@@ -546,7 +520,6 @@ export default function Home() {
                 </div>
               </FogWipeReveal>
             </div>
-
             <CourseworkGrid
               items={courseworkGrid.items}
               onProjectLinkClick={handleProjectLinkClick}
@@ -554,10 +527,9 @@ export default function Home() {
           </div>
         </Container>
       </section>
-    ),
 
-    (
-      <section key="scene-learning" className="w-full">
+      {/* ── Learning ──────────────────────────────────────────────── */}
+      <section id="learning" className="section-reveal flex min-h-[100svh] w-full items-center justify-center py-20">
         <Container>
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
             <div className="text-center">
@@ -567,7 +539,6 @@ export default function Home() {
               <FogWipeReveal>
                 <div className="mt-3">
                   <h2
-                    data-scene-title
                     className="text-balance text-4xl font-semibold"
                     style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
                   >
@@ -579,15 +550,13 @@ export default function Home() {
                 </div>
               </FogWipeReveal>
             </div>
-
             <LearningSection items={learningItems} />
           </div>
         </Container>
       </section>
-    ),
 
-    (
-      <section key="scene-work" className="w-full">
+      {/* ── Experience ────────────────────────────────────────────── */}
+      <section id="work" className="section-reveal flex min-h-[100svh] w-full items-center justify-center py-20">
         <Container>
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
             <div className="text-center">
@@ -597,7 +566,6 @@ export default function Home() {
               <FogWipeReveal>
                 <div className="mt-3">
                   <h2
-                    data-scene-title
                     className="text-balance text-4xl font-semibold"
                     style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
                   >
@@ -609,17 +577,13 @@ export default function Home() {
                 </div>
               </FogWipeReveal>
             </div>
-
-            <WorkExperience
-              roles={workExperience.roles as unknown as WorkRole[]}
-            />
+            <WorkExperience roles={workExperience.roles as unknown as WorkRole[]} />
           </div>
         </Container>
       </section>
-    ),
 
-    (
-      <section key="scene-projects" className="w-full">
+      {/* ── Projects ──────────────────────────────────────────────── */}
+      <section id="projects" className="section-reveal flex min-h-[100svh] w-full items-center justify-center py-20">
         <Container>
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
             <div className="text-center">
@@ -629,7 +593,6 @@ export default function Home() {
               <FogWipeReveal>
                 <div className="mt-3">
                   <h2
-                    data-scene-title
                     className="text-balance text-4xl font-semibold"
                     style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
                   >
@@ -641,44 +604,15 @@ export default function Home() {
                 </div>
               </FogWipeReveal>
             </div>
-
             <ProjectsCarousel items={projectsData} />
           </div>
         </Container>
       </section>
-    ),
 
-    (
-      <section key="scene-footer" className="w-full">
+      {/* ── Footer ────────────────────────────────────────────────── */}
+      <section id="footer" className="section-reveal w-full">
         <Footer />
       </section>
-    ),
-  ];
-
-  return (
-    <SceneProvider>
-      <main className="bg-background">
-        {/* Theme toggle — top-right corner */}
-        <div className="fixed top-5 right-5 z-30">
-          <ThemeToggle />
-        </div>
-        {/* Feature flag: pauseActive and overlay are gated by NARRATION_ENABLED */}
-        <SceneConveyor
-          scenes={scenes}
-          onSceneChange={handleSceneChange}
-          onSceneProgress={handleSceneProgress}
-          pauseActive={FLAGS.NARRATION_ENABLED ? narratorVisible : false}
-          overlay={
-            FLAGS.NARRATION_ENABLED ? (
-              <NarratorScene
-                visible={narratorVisible}
-                text={narratorText}
-                onDismiss={() => setNarratorVisible(false)}
-              />
-            ) : undefined
-          }
-        />
-      </main>
-    </SceneProvider>
+    </main>
   );
 }

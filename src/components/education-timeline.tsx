@@ -1,18 +1,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // education-timeline.tsx
 //
-// Vertical rail timeline — "Interactive Data Pipeline" style:
-//   • Left column  — thin rail + circular node buttons with glow + pulse
-//   • Right column — one large card revealing the selected step
-//   • Nodes: pulsing ring on active, glow halo, scale transition on select
-//   • Card:  fade + directional slide via AnimatePresence
-//   • Accessibility: aria-current, aria-controls, arrow-key navigation
-//   • Reduced motion: pulse disabled, card uses quick fade only
+// Scroll-driven education chapter:
+//   • Left column  — sticky rail with dot buttons + labels, highlights active card
+//   • Right column — all cards stacked vertically, each min-h-[75svh]
+//   • IntersectionObserver drives activeIndex — no click needed to reveal info
+//   • Clicking a dot smooth-scrolls to that card (instant when reduced motion)
+//   • Accessibility: aria-current on active dot, semantic <article> elements
 // ─────────────────────────────────────────────────────────────────────────────
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,13 +25,13 @@ export type EducationTimelineCta = {
 
 export type EducationTimelineItem = {
   id: string;
-  /** Short label shown in the pill + beside the rail node, e.g. "Bachelors" */
+  /** Short label shown in the pill + beside the rail node, e.g. "Masters" */
   label: string;
   /** Full degree / programme name */
   title: string;
   /** Institution name */
   org: string;
-  /** Date range + optional GPA, e.g. "2019–2023 • GPA 3.9" */
+  /** Date range + optional GPA, e.g. "2024–2026 • GPA 3.5" */
   meta: string;
   /** One-paragraph description */
   description: string;
@@ -46,20 +45,6 @@ interface EducationTimelineProps {
   className?: string;
 }
 
-// ─── Card animation variants ──────────────────────────────────────────────────
-
-const cardVariants = {
-  initial: (dir: 1 | -1) => ({ opacity: 0, y: dir * 14 }),
-  animate: { opacity: 1, y: 0 },
-  exit:    (dir: 1 | -1) => ({ opacity: 0, y: dir * -14 }),
-};
-
-const cardVariantsReduced = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit:    { opacity: 0 },
-};
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function EducationTimeline({
@@ -67,73 +52,90 @@ export function EducationTimeline({
   onCta,
   className,
 }: EducationTimelineProps) {
-  const [activeId, setActiveId]     = React.useState(items[0]?.id ?? "");
-  const [direction, setDirection]   = React.useState<1 | -1>(1);
-  const reduced                     = useReducedMotion();
-  const cardId                      = React.useId();
-  const nodeRefs                    = React.useRef<(HTMLButtonElement | null)[]>([]);
+  const reduced      = useReducedMotion();
+  const [activeIndex, setActiveIndex] = React.useState(0);
 
-  const activeIndex = items.findIndex((i) => i.id === activeId);
-  const activeItem  = items[activeIndex] ?? items[0];
+  // Refs to each card <article> element
+  const cardRefs = React.useRef<(HTMLElement | null)[]>([]);
 
-  function handleSelect(id: string) {
-    const newIdx = items.findIndex((i) => i.id === id);
-    const curIdx = items.findIndex((i) => i.id === activeId);
-    if (newIdx === curIdx) return;
-    setDirection(newIdx > curIdx ? 1 : -1);
-    setActiveId(id);
-  }
+  // ── IntersectionObserver: drive activeIndex from scroll ──────────────────
+  React.useEffect(() => {
+    const els = cardRefs.current.filter(Boolean) as HTMLElement[];
+    if (!els.length) return;
 
-  function handleKeyDown(e: React.KeyboardEvent, index: number) {
-    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-      e.preventDefault();
-      const next = Math.min(index + 1, items.length - 1);
-      handleSelect(items[next].id);
-      nodeRefs.current[next]?.focus();
-    } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-      e.preventDefault();
-      const prev = Math.max(index - 1, 0);
-      handleSelect(items[prev].id);
-      nodeRefs.current[prev]?.focus();
-    }
+    // Track latest intersection ratio per element
+    const ratioMap = new Map<Element, number>(els.map((el) => [el, 0]));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          ratioMap.set(entry.target, entry.intersectionRatio);
+        });
+
+        // Pick the element with the highest visible ratio
+        let bestEl: Element | null = null;
+        let bestRatio = -1;
+        ratioMap.forEach((ratio, el) => {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestEl = el;
+          }
+        });
+
+        if (bestEl) {
+          const idx = els.indexOf(bestEl as HTMLElement);
+          if (idx !== -1) setActiveIndex(idx);
+        }
+      },
+      {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: "-15% 0px -15% 0px",
+      },
+    );
+
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [items]);
+
+  // ── Dot click: scroll to card ─────────────────────────────────────────────
+  function scrollToCard(index: number) {
+    const el = cardRefs.current[index];
+    if (!el) return;
+    el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   }
 
   return (
-    <div className={cn("flex w-full items-start gap-5 sm:gap-9", className)}>
+    <div className={cn("flex w-full items-start gap-5 sm:gap-10", className)}>
 
-      {/* ── Left Rail ────────────────────────────────────────── */}
+      {/* ── Left Rail (sticky) ─────────────────────────────────── */}
       <div
         aria-label="Education steps"
-        className="relative flex shrink-0 flex-col items-start"
+        className="self-start sticky top-28 shrink-0"
         style={{ width: 126 }}
       >
-        {/* Vertical connector line — drawn behind nodes */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute top-[18px] bottom-[18px] left-[17px] w-px bg-border/50"
-        />
+        <div className="relative flex flex-col gap-10">
+          {/* Vertical connector line */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-[18px] bottom-[18px] left-[17px] w-px bg-border/50"
+          />
 
-        {/* Node list */}
-        <div className="relative z-10 flex flex-col gap-10">
           {items.map((item, i) => {
-            const isActive = item.id === activeId;
+            const isActive = i === activeIndex;
 
             return (
               <button
                 key={item.id}
-                ref={(el) => { nodeRefs.current[i] = el; }}
                 aria-current={isActive ? "step" : undefined}
-                aria-controls={cardId}
-                aria-label={`${item.label}: ${item.title}`}
-                onClick={() => handleSelect(item.id)}
-                onKeyDown={(e) => handleKeyDown(e, i)}
+                aria-label={`Jump to ${item.label}: ${item.title}`}
+                onClick={() => scrollToCard(i)}
                 className={cn(
-                  "group flex items-center gap-3 rounded-lg text-left",
+                  "group relative z-10 flex items-center gap-3 rounded-lg text-left",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
                   "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 )}
               >
-                {/* ── Node dot — 36×36 touch target ── */}
+                {/* ── Node dot ── */}
                 <span
                   aria-hidden
                   className="relative flex h-9 w-9 shrink-0 items-center justify-center"
@@ -153,7 +155,7 @@ export function EducationTimeline({
                     />
                   )}
 
-                  {/* Soft glow ring — active state only */}
+                  {/* Soft glow ring */}
                   <motion.span
                     aria-hidden
                     className="absolute rounded-full"
@@ -208,34 +210,29 @@ export function EducationTimeline({
         </div>
       </div>
 
-      {/* ── Right Card ───────────────────────────────────────── */}
-      <div className="min-w-0 flex-1">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.article
-            key={activeId}
-            id={cardId}
-            aria-live="polite"
-            custom={direction}
-            variants={reduced ? cardVariantsReduced : cardVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{
-              duration: reduced ? 0.15 : 0.28,
-              ease: "easeInOut",
-            }}
+      {/* ── Right: stacked cards ───────────────────────────────── */}
+      <div className="min-w-0 flex-1 flex flex-col gap-12">
+        {items.map((item, i) => (
+          <article
+            key={item.id}
+            ref={(el) => { cardRefs.current[i] = el; }}
+            aria-label={`${item.label}: ${item.title}`}
             className={cn(
               "relative overflow-hidden rounded-2xl",
-              // Padding
-              "p-6 sm:p-8",
-              // Border — subtle separation only, no accent stroke
+              // Tall enough to register cleanly in the observer
+              "min-h-[75svh] flex flex-col justify-center",
+              "p-6 sm:p-10 py-16",
+              // Border
               "border border-border/30",
               // Background depth
               "bg-gradient-to-br from-card/90 via-card/60 to-card/30",
               // Shadow
               "shadow-md shadow-black/[0.07]",
-              // Backdrop blur for glassy feel
+              // Glassy backdrop
               "backdrop-blur-sm",
+              // Dim inactive cards subtly
+              "transition-opacity duration-500",
+              i === activeIndex ? "opacity-100" : "opacity-55",
             )}
           >
             {/* Decorative inner warm glow — top-left corner */}
@@ -251,7 +248,7 @@ export function EducationTimeline({
             {/* ── Pill label ─────────────────────────── */}
             <div className="mb-5">
               <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-xs font-medium text-primary">
-                {activeItem.label}
+                {item.label}
                 <ChevronRight className="h-3 w-3 opacity-55" aria-hidden />
               </span>
             </div>
@@ -261,17 +258,17 @@ export function EducationTimeline({
               className="text-xl font-semibold leading-snug text-foreground sm:text-2xl"
               style={{ fontFamily: "var(--font-heading), ui-serif, Georgia, serif" }}
             >
-              {activeItem.title}
+              {item.title}
             </h3>
 
             {/* ── Organisation ────────────────────────── */}
             <p className="mt-1.5 text-sm font-medium text-primary/75">
-              {activeItem.org}
+              {item.org}
             </p>
 
             {/* ── Meta (dates · GPA) ───────────────────── */}
             <p className="mt-1 font-mono text-[11px] tracking-wide text-muted-foreground">
-              {activeItem.meta}
+              {item.meta}
             </p>
 
             {/* Divider */}
@@ -279,13 +276,13 @@ export function EducationTimeline({
 
             {/* ── Description ─────────────────────────── */}
             <p className="text-sm leading-relaxed text-muted-foreground">
-              {activeItem.description}
+              {item.description}
             </p>
 
             {/* ── Bullets ─────────────────────────────── */}
-            {activeItem.bullets && activeItem.bullets.length > 0 && (
+            {item.bullets && item.bullets.length > 0 && (
               <ul className="mt-4 space-y-2.5" aria-label="Highlights">
-                {activeItem.bullets.map((bullet, bi) => (
+                {item.bullets.map((bullet, bi) => (
                   <li
                     key={bi}
                     className="flex items-start gap-2.5 text-sm text-muted-foreground"
@@ -301,9 +298,9 @@ export function EducationTimeline({
             )}
 
             {/* ── CTA buttons ─────────────────────────── */}
-            {activeItem.ctas && activeItem.ctas.length > 0 && (
+            {item.ctas && item.ctas.length > 0 && (
               <div className="mt-7 flex flex-wrap gap-3">
-                {activeItem.ctas.map((cta) => (
+                {item.ctas.map((cta) => (
                   <button
                     key={cta.label}
                     onClick={() => onCta?.(cta)}
@@ -319,8 +316,8 @@ export function EducationTimeline({
                 ))}
               </div>
             )}
-          </motion.article>
-        </AnimatePresence>
+          </article>
+        ))}
       </div>
     </div>
   );

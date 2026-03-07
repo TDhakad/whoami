@@ -1,224 +1,263 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// scene-conveyor.tsx
+//
+// Sticky-camera scroll storytelling system.
+//
+// Architecture:
+//   • Outer wrapper  — creates scroll height (scenes.length × 100 vh)
+//   • Sticky camera  — position:sticky; top:0; height:100vh; overflow:hidden
+//   • Scene layers   — absolute inset-0; only active scene rendered visible
+//
+// Scroll behaviour:
+//   • Direct mapping: window.scrollY → progress (no lerp / smoothing)
+//   • Snap to nearest scene on scroll-end (native scrollend + debounce fallback)
+//   • prefers-reduced-motion: snap uses behavior:"auto"; no translateY
+//
+// Visibility rules — NO blur, ever:
+//   • absDist > VISIBLE_RANGE  → visibility:hidden, opacity:0
+//   • absDist < FADE_START     → opacity:1
+//   • between                  → short linear crossfade
+//   • pointer-events only on the centred active scene
+// ─────────────────────────────────────────────────────────────────────────────
 "use client";
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { useSceneContext } from "@/components/scene-context";
-import { FLAGS } from "@/lib/flags";
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function clamp(v: number, lo: number, hi: number) {
+  return Math.min(hi, Math.max(lo, v));
 }
 
-function lerp(from: number, to: number, progress: number) {
-  return from + (to - from) * progress;
-}
+// Crossfade constants (fractions of one scene height = one scene-px unit).
+// Scenes beyond VISIBLE_RANGE are completely hidden — nothing bleeds through.
+const VISIBLE_RANGE = 0.52; // slightly past 0.5 so both sides are never simultaneously zero
+const FADE_START    = 0.32; // below this distance → full opacity
+const MAX_TRANSLATE = 20;   // px — subtle parallax offset; 0 when reduced motion
+
+// ─── prefers-reduced-motion ───────────────────────────────────────────────────
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = React.useState(false);
-
   React.useEffect(() => {
-    if (typeof window === "undefined" || !("matchMedia" in window)) return;
-
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReduced(media.matches);
-
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReduced(mq.matches);
     onChange();
-
-    if ("addEventListener" in media) {
-      media.addEventListener("change", onChange);
-      return () => media.removeEventListener("change", onChange);
-    };
-    return;
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
-
   return reduced;
 }
 
-interface SceneConveyorProps {
-  scenes: React.ReactNode[];
-  className?: string;
-  sceneHeightVh?: number;
-  onSceneChange?: (nextIndex: number, prevIndex: number) => void;
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface SceneConveyorProps {
+  scenes:           React.ReactNode[];
+  className?:       string;
+  /** Height of each scene as a percentage of viewport height. Default: 100. */
+  sceneHeightVh?:   number;
+  onSceneChange?:   (nextIndex: number, prevIndex: number) => void;
   onSceneProgress?: (activeIndex: number, progress: number) => void;
-  overlay?: React.ReactNode;
-  pauseActive?: boolean;
+  /** Overlaid node (e.g. narrator). Rendered above all scenes. */
+  overlay?:         React.ReactNode;
+  /** When true, dims the camera with brightness only — never blur. */
+  pauseActive?:     boolean;
 }
 
-const MAX_SHIFT = 25;
-const MAX_BLUR = 8;
-const TITLE_SHIFT = 18;
-const TITLE_BLUR = 10;
-const TITLE_SCALE = 0.985;
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function SceneConveyor({
   scenes,
   className,
-  sceneHeightVh = 100,
+  sceneHeightVh  = 100,
   onSceneChange,
   onSceneProgress,
   overlay,
-  pauseActive = false,
+  pauseActive    = false,
 }: SceneConveyorProps) {
-  const reduced = usePrefersReducedMotion();
+  const reduced   = usePrefersReducedMotion();
   const { setActiveSceneIndex } = useSceneContext();
-  const wrapperRef = React.useRef<HTMLDivElement | null>(null);
-  const sceneRefs = React.useRef<Array<HTMLDivElement | null>>([]);
-  const titleRefs = React.useRef<Array<HTMLElement | null>>([]);
-  const overlayRef = React.useRef<HTMLDivElement | null>(null);
-  const activeIndexRef = React.useRef(-1);
+
+  const wrapperRef     = React.useRef<HTMLDivElement | null>(null);
+  const sceneRefs      = React.useRef<Array<HTMLDivElement | null>>([]);
+  const activeIndexRef = React.useRef(0);
+  const isSnappingRef  = React.useRef(false);
+
+  const n = scenes.length;
+
+  // ── RAF loop: scroll → scene visibility (no lerp) ────────────────────────
 
   React.useEffect(() => {
-    if (!wrapperRef.current) return;
-
-    let frame = 0;
+    if (n === 0) return;
+    let raf = 0;
 
     const tick = () => {
-      const wrapper = wrapperRef.current;
-      if (!wrapper) {
-        frame = window.requestAnimationFrame(tick);
-        return;
+      const vh        = window.innerHeight || 1;
+      const scenePx   = (sceneHeightVh / 100) * vh;
+      const maxScroll = Math.max(0, (n - 1) * scenePx);
+      const scrollY   = clamp(window.scrollY, 0, maxScroll);
+      const progress  = scenePx > 0 ? scrollY / scenePx : 0;
+      const activeIdx = clamp(Math.round(progress), 0, n - 1);
+
+      // Callbacks (narration, etc. — feature-flagged in page.tsx)
+      onSceneProgress?.(activeIdx, progress);
+
+      if (activeIdx !== activeIndexRef.current) {
+        const prev = activeIndexRef.current;
+        activeIndexRef.current = activeIdx;
+        setActiveSceneIndex(activeIdx);
+        onSceneChange?.(activeIdx, prev);
       }
 
-      const rect = wrapper.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const scenePx = (sceneHeightVh / 100) * vh;
-      const total = scenes.length * scenePx;
-      const maxScroll = Math.max(0, total - scenePx);
-      const scrolled = clamp(-rect.top, 0, maxScroll);
-      const progress = scenePx === 0 ? 0 : scrolled / scenePx;
-      const activeIndex = clamp(Math.round(progress), 0, scenes.length - 1);
+      sceneRefs.current.forEach((el, index) => {
+        if (!el) return;
 
-      onSceneProgress?.(activeIndex, progress);
+        // Signed distance from this scene's centre to the current scroll head.
+        //   negative → scene is ahead / below viewport (not yet reached)
+        //   positive → scene is behind / above viewport (scrolled past)
+        const dist    = progress - index;
+        const absDist = Math.abs(dist);
 
-      if (activeIndex !== activeIndexRef.current) {
-        const prevIndex = activeIndexRef.current;
-        activeIndexRef.current = activeIndex;
-        setActiveSceneIndex(activeIndex);
-        if (prevIndex >= 0) {
-          onSceneChange?.(activeIndex, prevIndex);
-        }
-      }
-
-      sceneRefs.current.forEach((scene, index) => {
-        if (!scene) return;
-
-        const local = progress - index;
-        const clamped = clamp(local, -1, 1);
-        const abs = Math.abs(clamped);
-        const t = (clamped + 1) / 2;
-
-        let translatePercent = 0;
-        let opacity = 1;
-        let blur = 0;
-
-        if (reduced) {
-          opacity = clamp(1 - abs * 1.6, 0, 1);
-        } else {
-          translatePercent = lerp(MAX_SHIFT, -MAX_SHIFT, t);
-          opacity = clamp(1 - abs * 0.9, 0, 1);
-          blur = clamp(abs * (MAX_BLUR * 0.4), 0, MAX_BLUR);
+        // ── Completely hidden ─────────────────────────────────────────────
+        if (absDist > VISIBLE_RANGE) {
+          el.style.visibility    = "hidden";
+          el.style.opacity       = "0";
+          el.style.pointerEvents = "none";
+          el.setAttribute("aria-hidden", "true");
+          return;
         }
 
-        scene.style.opacity = `${opacity}`;
-        scene.style.transform = reduced
-          ? "translate3d(0, 0, 0)"
-          : `translate3d(0, ${translatePercent}%, 0)`;
-        // Feature flag: set FLAGS.TRANSITION_BLUR_ENABLED = true to re-enable per-scene blur.
-        scene.style.filter = (reduced || !FLAGS.TRANSITION_BLUR_ENABLED) ? "none" : `blur(${blur.toFixed(2)}px)`;
-        scene.style.pointerEvents = abs <= 0.5 ? "auto" : "none";
-        scene.style.zIndex = `${Math.round((1 - abs) * 20) + 10}`;
-        scene.style.visibility = abs > 0.85 ? "hidden" : "visible";
-        scene.setAttribute("aria-hidden", abs > 0.8 ? "true" : "false");
+        // ── Opacity: full in centre zone, short linear fade at each edge ──
+        const opacity =
+          absDist < FADE_START
+            ? 1
+            : clamp(
+                1 - (absDist - FADE_START) / (VISIBLE_RANGE - FADE_START),
+                0,
+                1,
+              );
 
-        const title = titleRefs.current[index];
-        if (!title) return;
+        // ── Subtle vertical parallax — NO blur ────────────────────────────
+        //   dist < 0 → scene is below → starts at +MAX_TRANSLATE (enters from bottom)
+        //   dist > 0 → scene is above → exits toward -MAX_TRANSLATE (leaves to top)
+        const translateY = reduced
+          ? 0
+          : clamp(dist * -(MAX_TRANSLATE * 2), -MAX_TRANSLATE, MAX_TRANSLATE);
 
-        if (reduced) {
-          const titleOpacity = clamp(1 - abs * 1.3, 0, 1);
-          title.style.opacity = `${titleOpacity}`;
-          title.style.transform = "none";
-          title.style.filter = "none";
-        } else {
-          const titleOpacity = clamp(1 - abs * 1.05, 0, 1);
-          const titleTranslate = lerp(TITLE_SHIFT, -TITLE_SHIFT, t);
-          const titleBlur = clamp(abs * TITLE_BLUR, 0, TITLE_BLUR);
-          const titleScale = lerp(TITLE_SCALE, 1, 1 - abs);
-
-          title.style.opacity = `${titleOpacity}`;
-          title.style.transform = `translate3d(0, ${titleTranslate}px, 0) scale(${titleScale.toFixed(3)})`;
-          // Feature flag: set FLAGS.TRANSITION_BLUR_ENABLED = true to re-enable title blur.
-          title.style.filter = FLAGS.TRANSITION_BLUR_ENABLED ? `blur(${titleBlur.toFixed(2)}px)` : "none";
-        }
+        // ── Apply ─────────────────────────────────────────────────────────
+        el.style.visibility    = opacity > 0.01 ? "visible" : "hidden";
+        el.style.opacity       = opacity.toFixed(3);
+        el.style.transform     = reduced
+          ? "translate3d(0,0,0)"
+          : `translate3d(0,${translateY.toFixed(1)}px,0)`;
+        el.style.filter        = "none"; // ← NEVER blur
+        el.style.pointerEvents = absDist < 0.25 ? "auto" : "none";
+        el.style.zIndex        = String(Math.round((VISIBLE_RANGE - absDist) * 40));
+        el.setAttribute("aria-hidden", absDist > 0.3 ? "true" : "false");
       });
 
-      const overlay = overlayRef.current;
-      if (overlay) {
-        if (reduced) {
-          overlay.style.transform = "translate3d(0, 0, 0)";
-        } else {
-          const drift = clamp((progress - 1) * 4, -8, 8);
-          overlay.style.transform = `translate3d(0, ${drift}px, 0)`;
-        }
-      }
-
-      frame = window.requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     };
 
-    frame = window.requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduced, sceneHeightVh, n, setActiveSceneIndex]);
+
+  // ── Snap to nearest scene on scroll-end ──────────────────────────────────
+
+  React.useEffect(() => {
+    if (n === 0) return;
+
+    let snapTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const doSnap = () => {
+      if (isSnappingRef.current) return;
+
+      const vh        = window.innerHeight || 1;
+      const scenePx   = (sceneHeightVh / 100) * vh;
+      const maxScroll = Math.max(0, (n - 1) * scenePx);
+      const progress  = clamp(window.scrollY, 0, maxScroll) / scenePx;
+      const nearest   = clamp(Math.round(progress), 0, n - 1);
+      const target    = nearest * scenePx;
+
+      if (Math.abs(window.scrollY - target) < 4) return; // already landed
+
+      isSnappingRef.current = true;
+      window.scrollTo({ top: target, behavior: reduced ? "auto" : "smooth" });
+      // Release guard after smooth scroll settles (~600 ms)
+      setTimeout(() => { isSnappingRef.current = false; }, 650);
+    };
+
+    const onScroll = () => {
+      if (isSnappingRef.current) return;
+      if (snapTimer) clearTimeout(snapTimer);
+      snapTimer = setTimeout(doSnap, 120);
+    };
+
+    // Prefer native scrollend (Chrome 114+, FF 109+, Safari 17.4+)
+    const supportsScrollEnd = "onscrollend" in window;
+    if (supportsScrollEnd) {
+      window.addEventListener("scrollend", doSnap, { passive: true });
+    } else {
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
 
     return () => {
-      window.cancelAnimationFrame(frame);
+      if (snapTimer) clearTimeout(snapTimer);
+      if (supportsScrollEnd) {
+        window.removeEventListener("scrollend", doSnap);
+      } else {
+        window.removeEventListener("scroll", onScroll);
+      }
     };
-  }, [reduced, sceneHeightVh, scenes.length]);
+  }, [reduced, sceneHeightVh, n]);
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div
       ref={wrapperRef}
       className={cn("relative w-full", className)}
-      style={{ height: `${scenes.length * sceneHeightVh}vh` }}
+      style={{ height: `${n * sceneHeightVh}vh` }}
     >
+      {/* Sticky camera — never scrolls; clips overflow so nothing bleeds out */}
       <div className="sticky top-0 h-screen w-screen overflow-hidden">
-        <div className="relative h-full w-full">
-          <div
-            ref={overlayRef}
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[35vh]"
-            style={{
-              background:
-                "linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 22%, transparent), transparent 60%)",
-              opacity: 0.35,
-            }}
-          />
-          <div
-            className="relative h-full w-full"
-            style={{
-              filter: pauseActive
-                ? reduced
-                  ? "brightness(0.86)"
-                  : "blur(6px) brightness(0.82)"
-                : "none",
-              transition: "filter 300ms ease",
-              pointerEvents: pauseActive ? "none" : undefined,
-            }}
-          >
-            {scenes.map((scene, index) => (
-              <div
-                key={index}
-                ref={(node) => {
-                  sceneRefs.current[index] = node;
-                  titleRefs.current[index] = node
-                    ? (node.querySelector("[data-scene-title]") as HTMLElement | null)
-                    : null;
-                }}
-                className="absolute inset-0 flex h-full w-full items-center justify-center will-change-transform"
-              >
-                {scene}
-              </div>
-            ))}
-          </div>
-          {overlay}
+
+        {/* Inner wrapper: brightness-only dim for pauseActive; no blur */}
+        <div
+          className="relative h-full w-full"
+          style={{
+            filter:        pauseActive ? "brightness(0.82)" : "none",
+            transition:    "filter 280ms ease",
+            pointerEvents: pauseActive ? "none" : undefined,
+          }}
+        >
+          {scenes.map((scene, index) => (
+            <div
+              key={index}
+              ref={(node) => { sceneRefs.current[index] = node; }}
+              aria-hidden={index !== 0 ? "true" : "false"}
+              className="absolute inset-0 flex h-full w-full items-center justify-center will-change-transform"
+              style={{
+                // Painted defaults — RAF overrides on the very first tick.
+                visibility:    index === 0 ? "visible" : "hidden",
+                opacity:       index === 0 ? "1" : "0",
+                pointerEvents: index === 0 ? "auto" : "none",
+              }}
+            >
+              {scene}
+            </div>
+          ))}
         </div>
+
+        {/* Overlay (narrator, etc.) — sits above all scene layers */}
+        {overlay}
       </div>
     </div>
   );
 }
+
