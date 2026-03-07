@@ -21,8 +21,7 @@ import { LearningSection } from "@/components/learning-section";
 import type { LearningItem } from "@/components/learning-section";
 import { Footer } from "@/components/footer";
 import { ProjectsCarousel } from "@/components/projects-carousel";
-import type { ProjectItem } from "@/components/projects-carousel";
-import { hero, narratorLines, educationTimeline, courseworkGrid, workExperience } from "@/lib/portfolio-data";
+import { hero, narratorLines, educationTimeline, courseworkGrid, workExperience, projectsMeta, projectsData } from "@/lib/portfolio-data";
 import { FLAGS } from "@/lib/flags";
 
 /* ── Learning data (unified model) ───────────────────────────────── */
@@ -343,87 +342,6 @@ const learningSectionMeta = {
   title: "Curated Resources",
   subtitle: "Not a list of links — the ideas that actually changed how I build.",
 };
-
-/* ── Projects data ─────────────────────────────────────────────── */
-
-const projectsMeta = {
-  eyebrow: "PROJECTS",
-  title: "The Main Show",
-  subtitle: "Case studies written like stories — with diagrams, decisions, and outcomes.",
-};
-
-const projectsData: ProjectItem[] = [
-  {
-    id: "narrative-portfolio",
-    title: "Narrative Portfolio Engine",
-    oneLiner: "A scroll-driven storytelling framework that turns a developer portfolio into a cinematic experience.",
-    outcome: "Reduced bounce rate by 40% vs a previous static resume site.",
-    tags: ["Next.js", "Framer Motion", "TypeScript", "Tailwind"],
-    role: "Full-stack",
-    year: "2025",
-    highlights: [
-      "Designed a SceneConveyor system that drives per-scene parallax, blur, and scale from a single scroll value.",
-      "Built a Narrator cutscene layer that intercepts transitions and surfaces context without blocking scroll.",
-      "Implemented a unified motion token system so reduced-motion users get a coherent fallback automatically.",
-    ],
-  },
-  {
-    id: "rag-knowledge-assistant",
-    title: "RAG Knowledge Assistant",
-    oneLiner: "A document Q&A system that grounds every answer in source chunks — no hallucinations, always cited.",
-    outcome: "Answered 92% of test queries correctly, up from 61% with plain GPT.",
-    tags: ["LangChain", "OpenAI", "pgvector", "FastAPI", "React"],
-    role: "AI / Full-stack",
-    year: "2025",
-    highlights: [
-      "Chunked and embedded a 3,000-page technical corpus using recursive text splitting + sliding window overlap.",
-      "Built a streaming FastAPI backend that pushes token-by-token responses via SSE to the React frontend.",
-      "Designed a provenance UI that highlights the exact source passage for every claim in the answer.",
-    ],
-  },
-  {
-    id: "realtime-analytics",
-    title: "Realtime Analytics Dashboard",
-    oneLiner: "A live monitoring surface for a SaaS product showing user events, funnel health, and anomaly alerts.",
-    outcome: "Cut time-to-insight from 2 days (Looker) to under 30 seconds.",
-    tags: ["Next.js", "tRPC", "Prisma", "WebSockets", "Recharts"],
-    role: "Frontend",
-    year: "2024",
-    highlights: [
-      "Implemented a WebSocket fanout layer that delivers sub-100 ms event updates to up to 50 concurrent dashboard tabs.",
-      "Designed an anomaly detection chip that compares rolling 24 h vs prior period and surfaces statistical outliers inline.",
-      "Achieved a 94 Lighthouse performance score on a page with 6 live charts by virtualising off-screen series.",
-    ],
-  },
-  {
-    id: "design-system-motion-kit",
-    title: "Design System + Motion Kit",
-    oneLiner: "A token-first component library with built-in animation primitives — shipped as an internal npm package.",
-    outcome: "Reduced per-feature UI build time by ~30% across a 6-person frontend team.",
-    tags: ["React", "Tailwind", "Framer Motion", "Storybook", "Radix UI"],
-    role: "Frontend",
-    year: "2024",
-    highlights: [
-      "Defined a three-tier token architecture (primitive → semantic → component) so theme swaps require zero component edits.",
-      "Packaged an interruptible transition system that honours prefers-reduced-motion at the token level, not per-component.",
-      "Wrote a Storybook plugin that renders every component story in both light and dark themes simultaneously for review.",
-    ],
-  },
-  {
-    id: "workflow-automation-studio",
-    title: "Workflow Automation Studio",
-    oneLiner: "A no-code canvas that lets operations teams wire together API calls, conditionals, and email actions visually.",
-    outcome: "Replaced 14 bespoke internal scripts with 3 reusable canvas workflows.",
-    tags: ["React Flow", "Zustand", "Node.js", "Zod", "PostgreSQL"],
-    role: "Full-stack",
-    year: "2024",
-    highlights: [
-      "Built a React Flow-based drag-and-drop canvas with undo/redo stack using Zustand slices and immer patches.",
-      "Designed a runtime executor that validates each node's JSON schema output against the next node's expected input via Zod.",
-      "Shipped a webhook trigger system that can ingest payloads from any third-party service and route them to the correct workflow.",
-    ],
-  },
-];
 
 /* ── Animation helpers ─────────────────────────────────────────── */
 

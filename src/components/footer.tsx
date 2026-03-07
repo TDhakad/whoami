@@ -2,17 +2,16 @@
 
 import * as React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Linkedin, Mail, Instagram, MessageCircle } from "lucide-react";
+import { Linkedin, Mail, Github } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ── Contact / social links ─────────────────────────────────────
    Edit these to update every reference on the page at once.
 ─────────────────────────────────────────────────────────────── */
 const links = {
-  linkedin:  "https://www.linkedin.com/in/your-handle",
-  email:     "mailto:your@email.com",
-  instagram: "https://www.instagram.com/your-handle",
-  whatsapp:  "https://wa.me/91XXXXXXXXXX", // replace with countrycode+number
+  linkedin: "https://linkedin.com/in/tushar-dhakad",
+  email:    "mailto:tdhakad@asu.edu",
+  github:   "https://github.com/TDhakad",
 } as const;
 
 /* ── Social icon definitions ─────────────────────────────────── */
@@ -25,10 +24,9 @@ interface SocialLink {
 }
 
 const socialLinks: SocialLink[] = [
-  { key: "linkedin",  label: "Open LinkedIn profile",     icon: Linkedin,      external: true  },
-  { key: "email",     label: "Send an email",             icon: Mail,          external: false },
-  { key: "instagram", label: "Open Instagram profile",    icon: Instagram,     external: true  },
-  { key: "whatsapp",  label: "Open WhatsApp chat",        icon: MessageCircle, external: false },
+  { key: "linkedin", label: "Open LinkedIn profile", icon: Linkedin, external: true  },
+  { key: "email",    label: "Send an email",          icon: Mail,     external: false },
+  { key: "github",   label: "Open GitHub profile",   icon: Github,   external: true  },
 ];
 
 /* ── IconButton ──────────────────────────────────────────────── */

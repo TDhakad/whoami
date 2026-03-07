@@ -45,9 +45,9 @@ export type SpellItem = {
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
 export const hero = {
-  eyebrow: "Welcome to the story of an AI artistry magician.",
+  eyebrow: "Building reliable data systems and AI features with craftsmanship.",
   name: "Tushar Dhakad",
-  tagline: "Full-Stack Developer • AI-assisted craftsmanship",
+  tagline: "Software Developer • Data Engineering • AI Systems",
   ctas: [
     { label: "Enter", variant: "default" as ButtonVariant },
     { label: "View Work", variant: "outline" as ButtonVariant },
@@ -96,56 +96,37 @@ export const educationTimeline = {
   eyebrow: "EDUCATION",
   title: "The Origin Path",
   subtitle:
-    "Three chapters that built the foundation: first principles, computer science, then deep specialisation.",
+    "Two degrees that built the foundation: computer science fundamentals in India, then graduate specialisation in data science at ASU.",
   items: [
-    {
-      id: "foundation",
-      label: "Foundation",
-      title: "Higher Secondary — Science & Mathematics",
-      org: "Delhi Public School, R.K. Puram",
-      meta: "2017 – 2019  •  PCM + Computer Science",
-      description:
-        "Where it all started. Rigorous mathematics and an introductory CS curriculum planted the seed: logic is beautiful, and code is a way to think precisely. Topped the school in programming and mathematics.",
-      bullets: [
-        "Scored 97 % in Mathematics and 95 % in Computer Science (CBSE Board)",
-        "Built the school's first automated timetable generator in Python",
-        "Won the district-level science exhibition with a working neural-network demo",
-      ],
-    },
     {
       id: "bachelors",
       label: "Bachelors",
-      title: "B.Tech — Computer Science & Engineering",
-      org: "Institute of Design Systems",
-      meta: "2019 – 2023  •  GPA 3.9 / 4.0",
+      title: "Bachelor of Technology in Computer Science",
+      org: "Rajiv Gandhi Proudyogiki Vishwavidyalaya",
+      meta: "Aug 2018 – May 2022  •  GPA 3.70 / 4.00  •  Bhopal, India",
       description:
-        "Four years of systems thinking, algorithms, and human-computer interaction research. Graduated with distinction. Thesis explored using generative language models to scaffold front-end code from natural-language descriptions.",
+        "Four years of rigorous computer science fundamentals — data structures, algorithms, systems programming, and database design. Built a strong foundation in Python, Java, and SQL that would underpin every production system I would later build.",
       bullets: [
-        "Graduated in the top 2 % of the cohort (rank 3 / 180)",
-        "Research assistant: published a paper on transformer-based UI generation",
-        "Led the dev team for the university's open-source design-system library",
-        "Internship at a fintech startup — redesigned their onboarding flow, cutting drop-off by 38 %",
-      ],
-      ctas: [
-        { label: "View Thesis", action: "route", target: "/thesis" },
+        "GPA 3.70 / 4.00 — consistent academic performance across all four years",
+        "Focused on distributed systems, database design, and software engineering principles",
+        "Developed Python and Java projects spanning web services, data processing, and automation",
+        "Final year projects included real-time data pipeline prototypes and REST API services",
       ],
     },
     {
-      id: "specialization",
-      label: "Specialization",
-      title: "Specialization — Human-AI Interaction Design",
-      org: "Studio for Human-AI Narratives",
-      meta: "2023 – 2024  •  GPA 4.0 / 4.0",
+      id: "masters",
+      label: "Masters",
+      title: "Master of Science in Data Science",
+      org: "Arizona State University",
+      meta: "Aug 2024 – May 2026  •  GPA 3.50 / 4.00  •  Tempe, AZ, USA",
       description:
-        "A one-year intensive at the intersection of LLM product design, interaction research, and creative coding. Studied under practitioners building production AI tools. Culminated in a capstone that shipped to 2 000+ beta users.",
+        "Graduate programme at ASU's Ira A. Fulton Schools of Engineering, concentrating on machine learning, data engineering, and applied statistics. Awarded the NAMu University Scholarship. Coursework spans deep learning, time series analysis, cloud MLOps, and large-scale database modelling.",
       bullets: [
-        "Completed 6 project-based modules — all graded with real-world briefs",
-        "Capstone: multi-modal AI creative assistant, used by 2 k beta testers in 3 months",
-        "Presented at the studio's annual showcase; received the 'Most Innovative Prototype' award",
-      ],
-      ctas: [
-        { label: "See Capstone", action: "route", target: "/capstone" },
-        { label: "Certificate", action: "download", target: "/certificate.pdf" },
+        "Awarded NAMu University Scholarship for academic merit",
+        "GPA 3.50 / 4.00 — consistent graduate-level performance",
+        "Applied ML capstone: statistical modelling of wine quality using hypothesis testing and feature selection",
+        "Research topics include time series forecasting (ARIMA/SARIMA), RAG-based AI tooling, and ETL orchestration",
+        "Active in the ASU Statistics Department as a Computer Support specialist, bridging IT and academic systems",
       ],
     },
   ] satisfies EducationTimelineItem[],
@@ -290,59 +271,60 @@ export const spellCarousel = {
 
 export const courseworkGrid = {
   eyebrow: "COURSEWORK",
-  title: "Spells I'm Practicing",
+  title: "Disciplines in Focus",
   subtitle:
-    "Six disciplines I'm actively forging into real craft — click a card to unfold what I built and learned.",
+    "Six areas I'm actively building expertise in — click a card to see what I've applied and learned.",
   items: [
     {
-      id: "gen-ai",
-      title: "Generative AI",
-      summary: "Turning non-deterministic models into dependable product experiences.",
+      id: "data-engineering",
+      title: "Data Engineering",
+      summary: "Building scalable ETL pipelines that move terabytes reliably, every day.",
       content:
-        "Designed and shipped multi-model pipelines that blend text and image generation. Built RAG systems on top of pgvector, wrote prompt-chaining strategies to cut hallucination rates significantly, and integrated everything into a chatbot used by 500+ internal users.",
-      skills: ["LLMs", "RAG", "pgvector", "Prompt Engineering", "Diffusion Models", "LangChain"],
+        "Designed and deployed Spark and SQL-based ETL pipelines processing terabytes of structured data daily. Engineered orchestration workflows with Apache Airflow, AWS Step Functions, and AWS Lambda. Automated batch and streaming ingestion using AWS Glue and S3, reducing manual intervention and operational failures across distributed systems.",
+      skills: ["Apache Spark", "SQL", "Apache Airflow", "AWS Glue", "AWS Lambda", "S3", "dbt", "Kafka"],
+    },
+    {
+      id: "machine-learning",
+      title: "Machine Learning",
+      summary: "From hypothesis testing to production models — statistical rigour throughout.",
+      content:
+        "Applied feature selection, correlation analysis, and model evaluation to real-world datasets. Built classification and regression models using scikit-learn, optimised hyperparameters, and evaluated performance with residual diagnostics and error metrics. Focused on interpretability and reproducibility.",
+      skills: ["scikit-learn", "Pandas", "NumPy", "Feature Engineering", "Hypothesis Testing", "Model Evaluation", "Python"],
       projectLink: { label: "See related project", target: "projects" },
     },
     {
-      id: "fullstack",
-      title: "Full-Stack Systems",
-      summary: "End-to-end SaaS architecture with auth, billing, and real-time data.",
+      id: "deep-learning",
+      title: "Deep Learning",
+      summary: "Neural networks from fraud detection pipelines to real-time anomaly scoring.",
       content:
-        "Architected a production SaaS starter covering Clerk auth, Stripe billing, Postgres + Drizzle ORM, and edge-cached tRPC routes. Reduced API p99 latency from 420 ms to 38 ms, and implemented real-time presence via Supabase Realtime channels.",
-      skills: ["Next.js", "tRPC", "Postgres", "Drizzle ORM", "Redis", "Stripe", "Clerk"],
+        "Architected real-time fraud detection pipelines using PyTorch and scikit-learn, achieving 95% accuracy on high-frequency financial streams. Deployed Django REST APIs to deliver sub-millisecond anomaly scores to core banking systems. Applied distributed feature engineering and anomaly detection at scale using PySpark within Databricks.",
+      skills: ["PyTorch", "TensorFlow", "scikit-learn", "Databricks", "PySpark", "Django REST", "Anomaly Detection"],
     },
     {
-      id: "data-viz",
-      title: "Data Visualization",
-      summary: "Dashboards that surface insight before the user reads a single label.",
+      id: "time-series",
+      title: "Time Series Analysis",
+      summary: "Modelling seasonality, volatility, and long-term trends in sequential data.",
       content:
-        "Built an event-analytics dashboard handling 10 M+ rows via server-side aggregation. Designed a custom D3 force-layout network graph, and maintained 60 fps on large datasets by offloading rendering to a canvas worker.",
-      skills: ["D3.js", "Observable", "SVG", "Canvas API", "Recharts", "SQL aggregations"],
+        "Modelled Bitcoin price trends using ARIMA and SARIMA to capture seasonality, volatility, and long-term patterns. Evaluated forecasting performance using residual diagnostics, AIC, and error metrics to assess model stability. Applied statistical tests for stationarity and structural breaks.",
+      skills: ["ARIMA", "SARIMA", "JMP", "Python", "Residual Diagnostics", "AIC", "Stationarity Testing"],
       projectLink: { label: "See related project", target: "projects" },
     },
     {
-      id: "creative-coding",
-      title: "Creative Coding",
-      summary: "Canvas sketches and GLSL shaders — where math and randomness become beauty.",
+      id: "databases",
+      title: "Databases & Modelling",
+      summary: "Normalised schemas, complex joins, and indexing strategies that scale.",
       content:
-        "Wrote a procedural terrain generator using Perlin noise in GLSL, embedded interactive shader art in live Next.js pages without FPS drops, and created a generative type system that responds to real-time audio frequency data.",
-      skills: ["Canvas 2D", "WebGL", "GLSL", "p5.js", "Perlin Noise", "Web Audio API"],
+        "Designed normalised relational schemas for high-volume transactional systems. Optimised complex SQL queries and indexing strategies, reducing query latency by 30% in production. Worked with PostgreSQL, MySQL, MongoDB, and DynamoDB for both OLTP and analytical workloads.",
+      skills: ["PostgreSQL", "MySQL", "MongoDB", "DynamoDB", "SQL Indexing", "Schema Design", "Query Optimisation"],
+      projectLink: { label: "See related project", target: "projects" },
     },
     {
-      id: "hci",
-      title: "Human-Centered Design",
-      summary: "Research-first redesigns that cut task completion time and actually ship.",
+      id: "cloud-mlops",
+      title: "Cloud & MLOps",
+      summary: "From local script to production-grade containerised service on AWS.",
       content:
-        "Conducted 18 moderated usability sessions and synthesised findings into a prioritised backlog. Redesigned an onboarding flow that cut drop-off by 38 % in the first sprint. Ran an A/B test framework that became the team's standard for feature launches.",
-      skills: ["User Research", "Figma", "Usability Testing", "A/B Testing", "Jobs-to-be-Done", "Design Systems"],
-    },
-    {
-      id: "perf-a11y",
-      title: "Performance & Accessibility",
-      summary: "100 Lighthouse, zero CLS, full keyboard nav — fast and accessible are the same goal.",
-      content:
-        "Achieved a perfect Lighthouse score across all four categories in production. Eliminated CLS with CSS aspect-ratio containers, audited and fixed 42 WCAG 2.2 AA violations in a large legacy codebase, and mentored a team of 5 on accessible component patterns.",
-      skills: ["Core Web Vitals", "WCAG 2.2", "Lighthouse", "ARIA", "Keyboard Navigation", "CSS Containment"],
+        "Deployed containerised FastAPI and Django microservices on Kubernetes clusters with automated CI/CD pipelines. Worked across AWS services including S3, Lambda, SageMaker, Bedrock, API Gateway, Glue, ECS/EKS, and VPC. Used Terraform and HashiCorp Vault for infrastructure-as-code and secrets management.",
+      skills: ["AWS", "Docker", "Kubernetes", "Terraform", "GitHub Actions", "Snowflake", "Databricks", "HashiCorp Vault"],
     },
   ],
 };
@@ -370,96 +352,127 @@ export const workExperience = {
   eyebrow: "EXPERIENCE",
   title: "Chapters in the Field",
   subtitle:
-    "Every role taught something the classroom couldn't. These are the real proving grounds.",
+    "Three roles spanning data engineering, AI tooling, and academic systems — each one sharpening a different edge.",
   roles: [
     {
-      id: "swe-intern-nova",
+      id: "asu-computer-support",
+      type: "Full-time" as WorkRoleType,
+      title: "Computer Support — Statistics Department",
+      company: "Arizona State University",
+      dates: "March 2025 – Present",
+      hook: "Managing Python apps and SQL systems for faculty — then building an AI ticketing assistant on the side.",
+      techBullets: [
+        "Managed Python-based enterprise applications, SQL databases, and automation workflows that underpin academic system reliability for the Statistics Department.",
+        "Spearheaded an intelligent IT ticketing system using RAG-based recommendations and semantic search — AI-driven troubleshooting surfacing relevant resolutions before a ticket is even submitted.",
+        "Maintained and optimised SQL-backed administrative databases, improving query performance and data consistency for departmental operations.",
+      ],
+      businessBullets: [
+        "Automation workflows reduced manual overhead for faculty-facing systems, improving operational efficiency across the department.",
+        "RAG-powered ticketing assistant significantly cut time-to-resolution and reduced repetitive support load on the team.",
+      ],
+      skills: ["Python", "SQL", "PostgreSQL", "RAG", "Semantic Search", "Automation"],
+    },
+    {
+      id: "consultadd-swe",
+      type: "Full-time" as WorkRoleType,
+      title: "Software Developer",
+      company: "Consultadd Services",
+      dates: "Jul 2022 – Jul 2024",
+      hook: "ETL pipelines processing terabytes daily, 30 % query latency reduction, and containerised microservices in production.",
+      techBullets: [
+        "Designed and developed scalable Spark and SQL-based ETL pipelines to process terabytes of structured data daily, enabling reliable analytics across distributed systems used by multiple downstream business teams.",
+        "Optimised complex SQL queries, indexing strategies, and data models for high-volume transactional systems, reducing query latency by 30 % and significantly improving application responsiveness in production.",
+        "Engineered orchestration workflows using AWS Step Functions, Apache Airflow, and AWS Lambda, managing complex ETL dependencies, scheduling, and fault-tolerant execution of distributed data pipelines.",
+        "Developed containerised FastAPI and Django microservices deployed on Kubernetes clusters, implementing automated CI/CD pipelines to stream real-time Kafka data into production environments.",
+        "Automated batch and streaming data ingestion workflows using AWS Glue and S3, processing millions of records per day while reducing manual intervention and operational failures across pipelines.",
+        "Participated in agile development cycles including sprint planning, code reviews, and CI/CD workflows; resolved production incidents during on-call rotations to maintain service availability.",
+      ],
+      businessBullets: [
+        "30 % reduction in query latency directly improved user-facing application responsiveness for production systems.",
+        "Automated ingestion workflows eliminated manual intervention across pipelines, reducing data inconsistencies and operational failures.",
+        "ETL pipeline reliability enabled multiple downstream teams to depend on real-time analytics for business decisions.",
+      ],
+      skills: [
+        "Python", "Apache Spark", "SQL", "AWS Glue", "FastAPI", "Terraform",
+        "Docker", "Kubernetes", "Apache Airflow", "Kafka", "PostgreSQL",
+      ],
+    },
+    {
+      id: "consultadd-intern",
       type: "Intern" as WorkRoleType,
-      title: "Software Engineering Intern",
-      company: "Nova Systems",
-      dates: "May 2022 – Aug 2022",
-      hook: "Cut API latency by 3× with edge caching and redesigned the data-ingestion pipeline.",
-      narratorLine:
-        "The first real production bug is unforgettable — and you fixed it in three hours.",
-      supervisor: { name: "Priya Mehta", role: "Senior SWE" },
-      companyUrl: "https://example.com/nova",
+      title: "Software Developer Intern",
+      company: "Consultadd Services",
+      dates: "Jan 2022 – Jul 2022",
+      hook: "Built a 95%-accurate fraud detection pipeline and cut microservice troubleshooting time by 40 %.",
       techBullets: [
-        "Migrated six REST endpoints to tRPC with Zod validation, eliminating an entire category of runtime type errors.",
-        "Built an edge-cache layer using Cloudflare Workers KV, reducing median API latency from 310 ms to 98 ms.",
-        "Rewrote the CSV data-ingestion pipeline in a streaming fashion, cutting peak memory usage by 70 %.",
-        "Added OpenTelemetry instrumentation and built a Grafana dashboard surfacing p50/p95/p99 latencies.",
-        "Wrote 40+ unit and integration tests, raising coverage from 48 % to 81 % on the data service.",
+        "Architected real-time fraud detection pipelines using PyTorch and scikit-learn, achieving 95 % accuracy on high-frequency financial streams. Deployed Django REST APIs to deliver sub-millisecond anomaly scores to core banking systems.",
+        "Developed Python-based data processing frameworks leveraging Pandas, NumPy, and PySpark within Databricks to perform distributed data transformations, feature engineering, and anomaly detection at scale.",
+        "Implemented an ELK-based logging framework for a microservices architecture, centralising 500 GB of daily logs and enabling advanced Kibana visualisations for operational monitoring.",
       ],
       businessBullets: [
-        "The latency reduction directly unblocked a customer who had raised a blocking support ticket.",
-        "Streaming ingestion enabled processing files 5× larger than the previous limit, opening a new enterprise tier.",
-        "Improved observability reduced mean time to detection for incidents from 22 min to under 5 min.",
+        "95 % fraud detection accuracy on live financial streams delivered actionable anomaly scores directly into core banking workflows.",
+        "ELK logging framework reduced troubleshooting time by 40 % through centralised observability and structured log analytics.",
       ],
       skills: [
-        "TypeScript", "tRPC", "Zod", "Cloudflare Workers", "OpenTelemetry",
-        "Grafana", "Postgres", "Node.js",
-      ],
-    },
-    {
-      id: "fe-engineer-prism",
-      type: "Full-time" as WorkRoleType,
-      title: "Frontend Engineer",
-      company: "Prism Labs",
-      dates: "Sep 2023 – Jun 2024",
-      hook: "Owned the design system and shipped the AI-powered search feature used by 40 k users.",
-      narratorLine:
-        "Design systems are invisible until they're not — and then everyone notices.",
-      supervisor: { name: "Daniel Park", role: "Engineering Lead" },
-      companyUrl: "https://example.com/prism",
-      techBullets: [
-        "Architected and shipped a 60-component Radix-based design system with full Storybook documentation.",
-        "Implemented semantic vector search UI (pgvector + OpenAI embeddings) with streaming result rendering.",
-        "Achieved a Core Web Vitals score of 98 in production by eliminating layout shift and optimising LCP.",
-        "Migrated the dashboard from Create React App to Next.js 14 App Router — build times fell from 4 min to 34 s.",
-        "Built a real-time collaboration layer using Liveblocks for shared dashboards.",
-        "Led accessibility audit; fixed 42 WCAG 2.2 AA violations across the product.",
-      ],
-      businessBullets: [
-        "The design system cut new feature UI development time by ~40 % (measured over six sprints).",
-        "AI search increased session depth by 28 % and reduced zero-result searches from 18 % to 4 %.",
-        "Performance improvements correlated with a 12 % lift in free-to-paid conversion within 60 days.",
-        "Accessibility fixes expanded the addressable market to government procurement channels.",
-      ],
-      skills: [
-        "Next.js", "React", "TypeScript", "Radix UI", "Tailwind CSS",
-        "Framer Motion", "Liveblocks", "OpenAI", "Storybook", "Playwright",
-      ],
-    },
-    {
-      id: "ai-engineer-meridian",
-      type: "Full-time" as WorkRoleType,
-      title: "AI Product Engineer",
-      company: "Meridian AI",
-      dates: "Jul 2024 – Present",
-      hook: "Building production RAG pipelines and an agent orchestration layer serving 500+ internal users.",
-      narratorLine:
-        "Working at the frontier means the map runs out — and that's exactly where it gets interesting.",
-      supervisor: { name: "Sofia Reyes", role: "Head of AI Products" },
-      companyUrl: "https://example.com/meridian",
-      techBullets: [
-        "Designed a multi-step RAG pipeline with hybrid BM25 + vector retrieval, cutting hallucination rates by ~60 %.",
-        "Built an agent orchestration layer using LangGraph with tool-call retry logic and structured output validation.",
-        "Implemented streaming SSE responses in Next.js, enabling real-time token rendering across all AI surfaces.",
-        "Created an automated prompt-evaluation harness that runs on every PR, catching regressions before they reach prod.",
-        "Optimised context window usage by implementing adaptive chunking strategies (late chunking + contextual retrieval).",
-        "Shipped a multi-modal pipeline combining GPT-4o vision with custom OCR post-processing for document Q&A.",
-      ],
-      businessBullets: [
-        "The RAG pipeline reduced customer support ticket volume by 34 % in the first month post-launch.",
-        "Agent orchestration cut average task-completion time for internal analysts from 25 min to under 4 min.",
-        "Prompt evaluation harness caught 11 quality regressions in the first quarter, preventing three production incidents.",
-        "Document Q&A feature became the top-requested integration, directly influencing two enterprise contract renewals.",
-        "Streaming responses improved perceived latency scores (user surveys) by 41 percentage points.",
-      ],
-      skills: [
-        "LangGraph", "LangChain", "RAG", "pgvector", "GPT-4o",
-        "Next.js", "TypeScript", "SSE", "Prompt Engineering", "Python",
+        "Python", "PyTorch", "scikit-learn", "PySpark", "Databricks",
+        "Pandas", "NumPy", "Django", "Elasticsearch", "Kibana",
       ],
     },
   ] satisfies WorkRoleData[],
 };
+
+// ─── Projects ─────────────────────────────────────────────────────────────────
+
+export const projectsMeta = {
+  eyebrow: "PROJECTS",
+  title: "The Main Show",
+  subtitle: "Three projects spanning statistical modelling, time series forecasting, and database design.",
+} as const;
+
+export const projectsData = [
+  {
+    id: "wine-quality",
+    title: "Wine Quality Statistical Modeling",
+    oneLiner:
+      "Identified key chemical factors impacting wine quality using ML models and statistical hypothesis testing.",
+    outcome: "Improved prediction accuracy through systematic feature selection and correlation analysis.",
+    tags: ["Python", "Pandas", "Scikit-learn", "Statistics"],
+    role: "Data Science",
+    year: "2025",
+    highlights: [
+      "Built machine learning models to identify key chemical factors impacting wine quality using statistical hypothesis testing.",
+      "Applied feature selection, correlation analysis, and model evaluation to improve prediction accuracy and interpretability.",
+      "Evaluated multiple classifiers and regression models; selected the best-performing approach based on cross-validated metrics.",
+    ],
+  },
+  {
+    id: "bitcoin-forecasting",
+    title: "Bitcoin Time Series Forecasting",
+    oneLiner:
+      "Modelled Bitcoin price trends using ARIMA and SARIMA to capture seasonality, volatility, and long-term patterns.",
+    outcome: "Validated model stability using residual diagnostics, AIC, and error metrics.",
+    tags: ["Python", "ARIMA", "SARIMA", "JMP"],
+    role: "Data Science",
+    year: "2025",
+    highlights: [
+      "Modelled Bitcoin price trends using ARIMA and SARIMA to capture seasonality, volatility, and long-term patterns.",
+      "Evaluated forecasting performance using residual diagnostics, AIC, and error metrics to assess model stability.",
+      "Applied stationarity tests and differencing to prepare the time series for classical forecasting methods.",
+    ],
+  },
+  {
+    id: "social-media-db",
+    title: "Social Media Database Modeling",
+    oneLiner:
+      "Designed and queried a normalised relational schema for a social media platform supporting users, posts, and interactions.",
+    outcome: "Efficient data retrieval via complex joins and strategic indexing at scale.",
+    tags: ["Python", "Tableau", "SQL"],
+    role: "Data Engineering",
+    year: "2024",
+    highlights: [
+      "Designed normalised relational database schema for social media applications supporting users, posts, and interactions.",
+      "Implemented complex SQL queries with joins and indexing to ensure efficient data retrieval and scalability.",
+      "Visualised usage patterns and query performance using Tableau dashboards for analytical review.",
+    ],
+  },
+];
